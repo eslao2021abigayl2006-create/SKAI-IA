@@ -1,0 +1,281 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080817;
+    color: white;
+}
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 9%;
+    background: #101027;
+    border-bottom: 1px solid #29294d;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    color: white;
+}
+
+.logo span {
+    color: #a66bff;
+}
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    color: #d8d5e8;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+nav a:hover {
+    color: #b77aff;
+}
+
+.principal {
+    text-align: center;
+    padding: 110px 20px;
+    background: radial-gradient(circle at top, #30205d, #080817 65%);
+}
+
+.etiqueta {
+    color: #c19aff;
+    letter-spacing: 4px;
+    font-size: 12px;
+    margin-bottom: 25px;
+}
+
+.principal h1 {
+    max-width: 850px;
+    margin: auto;
+    font-size: 52px;
+    line-height: 1.2;
+}
+
+.principal h1 span {
+    color: #ae79ff;
+}
+
+.principal p {
+    max-width: 600px;
+    margin: 25px auto;
+    color: #c1bfd4;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.boton-principal {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 15px 30px;
+    background: linear-gradient(90deg, #7545d5, #ae65ed);
+    border-radius: 30px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.funciones {
+    padding: 80px 9%;
+    text-align: center;
+}
+
+.funciones h2,
+.asistente h2 {
+    font-size: 32px;
+    margin-bottom: 40px;
+}
+
+.tarjetas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.tarjeta {
+    background: #14142c;
+    padding: 35px 25px;
+    border: 1px solid #343052;
+    border-radius: 18px;
+    transition: 0.3s;
+}
+
+.tarjeta:hover {
+    transform: translateY(-7px);
+    border-color: #a66bff;
+}
+
+.icono {
+    font-size: 38px;
+    color: #b17aff;
+    margin-bottom: 20px;
+}
+
+.tarjeta h3 {
+    margin-bottom: 15px;
+    font-size: 21px;
+}
+
+.tarjeta p {
+    color: #bcbad0;
+    line-height: 1.6;
+}
+
+.asistente {
+    padding: 80px 20px;
+    text-align: center;
+    background: #101027;
+}
+
+.subtitulo {
+    color: #bcbad0;
+    margin-top: -25px;
+    margin-bottom: 30px;
+}
+
+.chat {
+    max-width: 750px;
+    margin: auto;
+    padding: 25px;
+    background: #191932;
+    border: 1px solid #39345b;
+    border-radius: 20px;
+    text-align: left;
+}
+
+#mensajes {
+    height: 320px;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mensaje {
+    max-width: 85%;
+    padding: 15px 18px;
+    border-radius: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mensaje.ia {
+    background: #292347;
+    color: white;
+    align-self: flex-start;
+}
+
+.mensaje.usuario {
+    background: #7545d5;
+    color: white;
+    align-self: flex-end;
+}
+
+.chat-escribir {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.chat-escribir input {
+    flex: 1;
+    min-width: 0;
+    padding: 16px;
+    background: #0d0d20;
+    color: white;
+    border: 1px solid #514779;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+}
+
+.chat-escribir button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    background: #8954e5;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.chat-escribir button:hover {
+    background: #a36aff;
+}
+
+.chat-escribir button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+footer {
+    padding: 35px 15px;
+    text-align: center;
+    background: #080817;
+    border-top: 1px solid #29294d;
+    color: #aaa6c1;
+    line-height: 2;
+}
+
+footer h3 {
+    color: #b17aff;
+    font-size: 24px;
+}
+
+@media (max-width: 700px) {
+    .encabezado {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    nav {
+        gap: 15px;
+    }
+
+    .principal {
+        padding: 75px 20px;
+    }
+
+    .principal h1 {
+        font-size: 36px;
+    }
+
+    .tarjetas {
+        grid-template-columns: 1fr;
+    }
+
+    .funciones h2,
+    .asistente h2 {
+        font-size: 26px;
+    }
+
+    .chat {
+        padding: 12px;
+    }
+
+    .chat-escribir button {
+        padding: 12px;
+    }
+}
+
+
+
