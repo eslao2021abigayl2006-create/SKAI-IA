@@ -84,15 +84,25 @@ app.post("/preguntar", async (req, res) => {
             });
         }
 
-        const respuesta = await cliente.models.generateContent({
-            model: "gemini-3.5-flash-lite",
-            config: {
-                systemInstruction: instrucciones,
-                temperature: 0.2
-            },
-            contents: pregunta.trim()
-        });
+        const inicio = Date.now();
 
+const respuesta = await cliente.models.generateContent({
+    model: "gemini-3.5-flash-lite",
+    config: {
+        systemInstruction: instrucciones,
+        temperature: 0.2,
+        thinkingConfig: {
+            thinkingLevel: "minimal"
+        }
+    },
+    contents: pregunta.trim()
+});
+
+console.log(
+    "Tiempo de respuesta de Gemini:",
+    (Date.now() - inicio) / 1000,
+    "segundos"
+);
         res.json({
             respuesta: respuesta.text ||
                 "No pude generar una respuesta. Inténtalo nuevamente."
