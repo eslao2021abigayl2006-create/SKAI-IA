@@ -1,4 +1,5 @@
 
+
 require("dotenv").config();
 
 const express = require("express");
@@ -7,7 +8,7 @@ const { GoogleGenAI } = require("@google/genai");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Conexión con el servicio de inteligencia artificial
+// Conexión con la inteligencia artificial
 const cliente = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
 });
@@ -20,7 +21,7 @@ const instrucciones = `
 Tu nombre es SKAI IA.
 
 Eres el asistente virtual oficial de la página web SKAI IA.
-Tienes una identidad propia y debes mantenerla durante toda la conversación.
+Debes mantener tu identidad durante toda la conversación.
 
 REGLAS OBLIGATORIAS:
 1. Tu nombre siempre es SKAI IA.
@@ -35,9 +36,11 @@ REGLAS OBLIGATORIAS:
 8. Si preguntan quién te creó, responde:
    "Soy el asistente virtual del proyecto SKAI IA."
 9. Habla siempre en español.
-10. Sé amable, inteligente y profesional.
-11. Responde de forma breve y sencilla, máximo 80 palabras, salvo que pidan más detalles.
-12. No inventes información sobre tu creadora.
+10. Habla ingles solo cuando te lo pidan 
+11. Sé amable, inteligente y profesional.
+12. Responde de forma breve y sencilla, máximo 80 palabras,
+    salvo que pidan más detalles.
+13. No inventes información sobre tu creadora.
 
 Tu identidad es SKAI IA en todo momento.
 `;
@@ -49,71 +52,107 @@ app.get("/estado", (req, res) => {
     });
 });
 
-// Recibir y responder preguntas
+// Recibir preguntas y responder progresivamente
 app.post("/preguntar", async (req, res) => {
+
     try {
         const pregunta = req.body.pregunta;
 
         if (typeof pregunta !== "string" || !pregunta.trim()) {
-            return res.status(400).json({
-                error: "Escribe una pregunta."
-            });
+            return res.status(400).send("Escribe una pregunta.");
         }
 
-        // Preguntas directas sobre su identidad
+        // Normalizar la pregunta
         const preguntaNormalizada = pregunta
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
 
+        // Respuestas directas sobre la identidad
         if (
             preguntaNormalizada.includes("como te llamas") ||
             preguntaNormalizada.includes("cual es tu nombre")
         ) {
-            return res.json({
-                respuesta: "Me llamo SKAI IA. ¿En qué puedo ayudarte?"
-            });
+            return res.send(
+                "Me llamo SKAI IA. ¿En qué puedo ayudarte?"
+            );
         }
 
         if (
             preguntaNormalizada.includes("quien eres") ||
             preguntaNormalizada.includes("que eres")
         ) {
-            return res.json({
-                respuesta: "Soy SKAI IA, tu asistente virtual. Estoy aquí para ayudarte a aprender, crear y descubrir nuevas ideas."
-            });
+            return res.send(
+                "Soy SKAI IA, tu asistente virtual. Estoy aquí para ayudarte a aprender, crear y descubrir nuevas ideas."
+            );
         }
 
+        // Preparar la respuesta progresiva
         const inicio = Date.now();
+        let primerFragmento = true;
 
-const respuesta = await cliente.models.generateContent({
-    model: "gemini-3.5-flash-lite",
-    config: {
-        systemInstruction: instrucciones,
-        temperature: 0.2,
-        thinkingConfig: {
-            thinkingLevel: "minimal"
-        }
-    },
-    contents: pregunta.trim()
-});
+        res.setHeader(
+            "Content-Type",
+            "text/plain; charset=utf-8"
+        );
 
-console.log(
-    "Tiempo de respuesta de Gemini:",
-    (Date.now() - inicio) / 1000,
-    "segundos"
-);
-        res.json({
-            respuesta: respuesta.text ||
-                "No pude generar una respuesta. Inténtalo nuevamente."
+        res.setHeader("Cache-Control", "no-cache, no-transform");
+        res.setHeader("X-Accel-Buffering", "no");
+
+        // Solicitar respuesta mediante streaming
+        const respuesta = await cliente.models.generateContentStream({
+            model: "gemini-3.5-flash-lite",
+
+            config: {
+                systemInstruction: instrucciones,
+                temperature: 0.2,
+                thinkingConfig: {
+                    thinkingLevel: "minimal"
+                }
+            },
+
+            contents: pregunta.trim()
         });
+
+        // Mostrar cada fragmento conforme llega
+        for await (const fragmento of respuesta) {
+
+            if (fragmento.text) {
+
+                if (primerFragmento) {
+                    console.log(
+                        "Primer fragmento recibido:",
+                        ((Date.now() - inicio) / 1000).toFixed(2),
+                        "segundos"
+                    );
+
+                    primerFragmento = false;
+                }
+
+                res.write(fragmento.text);
+            }
+        }
+
+        // Registrar el tiempo total
+        console.log(
+            "Tiempo total de Gemini:",
+            ((Date.now() - inicio) / 1000).toFixed(2),
+            "segundos"
+        );
+
+        res.end();
 
     } catch (error) {
+
         console.error("Error de SKAI IA:", error.message);
 
-        res.status(500).json({
-            error: "No pude responder en este momento. Inténtalo nuevamente."
-        });
+        if (!res.headersSent) {
+            res.status(500).send(
+                "No pude responder en este momento. Inténtalo nuevamente."
+            );
+        } else {
+            res.end();
+        }
     }
 });
 

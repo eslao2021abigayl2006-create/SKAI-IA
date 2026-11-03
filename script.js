@@ -22,10 +22,10 @@ async function enviarMensaje() {
     entrada.value = "";
     boton.disabled = true;
 
-    // Mostrar mensaje de espera
+    // Crear espacio para la respuesta de SKAI IA
     const mensajeIA = document.createElement("div");
     mensajeIA.className = "mensaje ia";
-    mensajeIA.textContent = "SKAI IA está pensando...";
+    mensajeIA.textContent = "";
     mensajes.appendChild(mensajeIA);
 
     mensajes.scrollTop = mensajes.scrollHeight;
@@ -41,17 +41,27 @@ async function enviarMensaje() {
             })
         });
 
-        const datos = await respuesta.json();
-
         if (!respuesta.ok) {
-            throw new Error(datos.error || "No pude responder.");
+            throw new Error(await respuesta.text());
         }
 
-        if (!datos.respuesta) {
-            throw new Error("No recibí una respuesta.");
+        // Leer la respuesta progresivamente
+        const lector = respuesta.body.getReader();
+        const decodificador = new TextDecoder();
+
+        while (true) {
+            const { value, done } = await lector.read();
+
+            if (done) break;
+
+            mensajeIA.textContent += decodificador.decode(value, {
+                stream: true
+            });
+
+            mensajes.scrollTop = mensajes.scrollHeight;
         }
 
-        mensajeIA.textContent = datos.respuesta;
+        mensajeIA.textContent += decodificador.decode();
 
     } catch (error) {
         mensajeIA.textContent =
@@ -79,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 
 
 
